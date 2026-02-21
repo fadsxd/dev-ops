@@ -1,0 +1,41 @@
+name: ci - deploy asset
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del codigo
+        uses: actions/checkout@v6.0.2
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Instalar y Compilar
+        run: |
+          npm install
+          npm run build
+
+      - name: Crear Asset Zip
+        # Aquí creamos el archivo descargable que pide el enunciado
+        run: zip -r nestjs-build.zip dist/ package.json package-lock.json
+
+      - name: Crear GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: nestjs-build.zip
+          name: Release ${{ github.ref_name }}
+          body: |
+            Release generado automáticamente por GitHub Actions.
+            Incluye el asset comprimido con la carpeta dist.
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
