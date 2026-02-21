@@ -1,0 +1,42 @@
+name: ci - dev-ops
+on: 
+    push: 
+      branches: [main]
+    pull_request:
+      branches: [main]
+jobs:
+  build-and-test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        node-version: [20.x]
+        
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Chekout del codigo
+        uses: actions/checkout@v6.0.2
+
+      - name: Configuracion Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Build del proyecto
+        run: npm run build
+        
+      - name: Ejecutar pruebas
+        run: npm test -- --passWithNoTests
+
+
+
+          
+
+
+
+
+
+        
